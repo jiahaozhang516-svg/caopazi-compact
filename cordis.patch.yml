@@ -1,0 +1,33 @@
+# caopazi-compact bundle layer.
+#
+# This bundle sits after @deepseek-ai/dsh-web-app, so the preset rows already
+# exist when these patches apply (id patches are applied in bundle order).
+#
+# The preset rows are gated on `caopaziCompactReady`: the overlay in index.js
+# registers its internal/config hook and only then publishes that service, so
+# a preset cannot resolve its plugin list before the hook exists. The fallback
+# row releases the gate after 15s if the overlay ever fails, leaving stock
+# compaction in place instead of blocking session creation.
+#
+# Removing this bundle removes the rows AND the inject gates together, which
+# keeps rollback to a single step.
+- insert:
+    - id: caopazi-compact
+      name: caopazi-compact
+      config:
+        thresholdRatio: 0.7
+        retainRatio: 0.16
+        anchors:
+          enabled: true
+          budgetTokens: 1500
+    - id: caopazi-compact-fallback
+      name: caopazi-compact/fallback
+
+- id: preset-standard
+  inject: [caopaziCompactReady]
+- id: preset-ptc
+  inject: [caopaziCompactReady]
+- id: preset-minimal
+  inject: [caopaziCompactReady]
+- id: preset-cordis
+  inject: [caopaziCompactReady]
